@@ -21,18 +21,19 @@ void init() {
   }
 }
 
-std::vector<char> generatePythonUDFResult(const Message& request) {
+std::vector<char> generatePythonUDFResult(
+    const std::vector<char>& pickledPayload) {
   AutoGIL ag;
-  auto pargs = py::bytes(request.payload().data(), request.payload().size());
+  auto pargs = py::bytes(pickledPayload.data(), pickledPayload.size());
   py::bytes pres = runUDFFunction_(pargs);
   const auto& presStr = static_cast<std::string>(pres);
   std::vector<char> payload(presStr.begin(), presStr.end());
   return payload;
 }
 
-py::object loadPythonUDFResult(const Message& message) {
+py::object loadPythonUDFResult(const std::vector<char>& pickledPayload) {
   AutoGIL ag;
-  auto pargs = py::bytes(message.payload().data(), message.payload().size());
+  auto pargs = py::bytes(pickledPayload.data(), pickledPayload.size());
   return loadResultFunction_(pargs);
 }
 } // namespace PythonRpcHandler
